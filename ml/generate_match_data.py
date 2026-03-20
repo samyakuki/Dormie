@@ -1,60 +1,51 @@
 import random
 import json
 
-# Clamp value between 1 and 5
-def clamp(val):
-    return min(5, max(1, val))
+# ==============================
+# CONFIG
+# ==============================
+NUM_USERS = 2000   # number of synthetic users
 
-# Create a random user profile
+# ==============================
+# GENERATE RANDOM USER
+# ==============================
+
 def random_profile():
     return {
-        "cleanliness": random.randint(1, 5),
-        "sleep": random.randint(1, 5),
-        "food": random.randint(1, 5),
-        "music": random.randint(1, 5),
-        "study": random.randint(1, 5),
-        "currentYear": random.randint(1, 4),
-        "degree": random.choice(["btech", "mtech", "phd"]),
-        "gender": random.choice(["male", "female", "other"])
+        "name": f"user_{random.randint(10000, 99999)}",
+        "email": f"synthetic_{random.randint(100000,999999)}@test.com",
+        "password": "dummy",  # not used for synthetic users
+
+        # Preferences (NOW 1–10 ✅)
+        "cleanliness": random.randint(1, 10),
+        "sleep": random.randint(1, 10),
+        "food": random.randint(1, 10),
+        "music": random.randint(1, 10),
+        "study": random.randint(1, 10),
+
+        # Profile info
+        "gender": random.choice(["male", "female", "other"]),
+        "degree": random.choice(["BTech", "MTech", "PhD"]),
+        "currentYear": str(random.randint(1, 4)),
+
+        # IMPORTANT FLAG
+        "isSynthetic": True
     }
 
-# Create a variant profile (slightly similar to base)
-def user_variant(base):
-    return {
-        "cleanliness": clamp(base["cleanliness"] + random.choice([-1, 0, 1])),
-        "sleep": clamp(base["sleep"] + random.choice([-1, 0, 1])),
-        "food": clamp(base["food"] + random.choice([-1, 0, 1])),
-        "music": clamp(base["music"] + random.choice([-1, 0, 1])),
-        "study": clamp(base["study"] + random.choice([-1, 0, 1])),
-        "currentYear": base["currentYear"],
-        "degree": base["degree"],
-        "gender": base["gender"]
-    }
+# ==============================
+# GENERATE USERS
+# ==============================
 
-# Define match logic
-def is_match(user, other):
-    score = 0
-    for key in ["cleanliness", "sleep", "food", "music", "study"]:
-        if abs(user[key] - other[key]) <= 1:
-            score += 1
-    if user["gender"] == other["gender"]:
-        score += 1
-    if user["degree"] == other["degree"]:
-        score += 1
-    if user["currentYear"] == other["currentYear"]:
-        score += 1
-    return 1 if score >= 5 else 0  # relaxed match logic
+users = []
 
-# Generate dataset
-data = []
-for _ in range(1000):  # more samples = better model
-    u1 = random_profile()
-    u2 = random_profile() if random.random() < 0.5 else user_variant(u1)
-    match = is_match(u1, u2)
-    data.append({"user": u1, "other": u2, "match": match})
+for _ in range(NUM_USERS):
+    users.append(random_profile())
 
-# Save to file
-with open("match_data.json", "w") as f:
-    json.dump(data, f, indent=2)
+# ==============================
+# SAVE FILE
+# ==============================
 
-print("✅ Dataset generated: 1000 samples with normalized ranges and realistic variations.")
+with open("synthetic_users.json", "w") as f:
+    json.dump(users, f, indent=2)
+
+print(f"✅ Generated {NUM_USERS} synthetic users (1–10 scale)")

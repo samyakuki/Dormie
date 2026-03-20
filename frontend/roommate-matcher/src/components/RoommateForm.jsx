@@ -21,6 +21,15 @@ import { jwtDecode } from "jwt-decode";
 
 const criteria = ["cleanliness", "sleep", "food", "music", "study"];
 
+// ✅ Descriptions added
+const descriptions = {
+  cleanliness: "1 = Very messy, 10 = Extremely clean",
+  sleep: "1 = Sleeps very late, 10 = Sleeps very early",
+  food: "1 = Pure veg, 10 = Non-veg",
+  music: "1 = Prefers silence, 10 = Loves loud music",
+  study: "1 = Rarely studies, 10 = Studies very often",
+};
+
 const RoommateForm = () => {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
@@ -64,34 +73,65 @@ const RoommateForm = () => {
   };
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  try {
-    const res = await axios.post(
-      "http://localhost:5000/users/form",
-      formData,
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
+    e.preventDefault();
+    try {
+      const res = await axios.post(
+        "http://localhost:5000/users/form",
+        formData,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
 
-    const matches = res.data.matches;
+      const matches = res.data.matches;
 
-    navigate("/results", {
-      state: {
-        currentUser: formData,
-        matches: matches,
-      },
-    });
-  } catch (err) {
-    console.error("Form submission failed:", err?.response || err);
-    alert("Could not fetch matches. Please try again.");
-  }
-};
+      navigate("/results", {
+        state: {
+          currentUser: formData,
+          matches: matches,
+        },
+      });
+    } catch (err) {
+      console.error("Form submission failed:", err?.response || err);
+      alert("Could not fetch matches. Please try again.");
+    }
+  };
 
+  const renderPreference = (item) => (
+    <Box key={item} sx={{ my: 3 }}>
+      <Typography gutterBottom fontWeight="bold">
+        {item.charAt(0).toUpperCase() + item.slice(1)} Preference: {formData[item]}
+      </Typography>
+
+      {/* ✅ Description */}
+      <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+        {descriptions[item]}
+      </Typography>
+
+      <Slider
+        value={formData[item]}
+        onChange={handleSlider(item)}
+        step={1}
+        marks={[
+          { value: 1, label: "Low" },
+          { value: 5, label: "Medium" },
+          { value: 10, label: "High" },
+        ]}
+        min={1}
+        max={10}
+        valueLabelDisplay="auto"
+      />
+    </Box>
+  );
 
   return (
-    <Box component={Paper} elevation={3} sx={{ maxWidth: 500, mx: "auto", mt: 5, p: 4 }}>
+    <Box
+      component={Paper}
+      elevation={3}
+      sx={{ maxWidth: 500, mx: "auto", mt: 5, p: 4 }}
+    >
       <Typography variant="h5" gutterBottom>
         Fill Your Preferences
       </Typography>
+
       <form onSubmit={handleSubmit}>
         <TextField
           fullWidth
@@ -102,6 +142,7 @@ const RoommateForm = () => {
           required
           sx={{ mb: 2 }}
         />
+
         <TextField
           fullWidth
           label="Email"
@@ -110,6 +151,7 @@ const RoommateForm = () => {
           disabled
           sx={{ mb: 2 }}
         />
+
         <FormLabel component="legend">Gender</FormLabel>
         <RadioGroup
           row
@@ -123,22 +165,8 @@ const RoommateForm = () => {
           <FormControlLabel value="other" control={<Radio />} label="Other" />
         </RadioGroup>
 
-        {criteria.map((item) => (
-          <Box key={item} sx={{ my: 2 }}>
-            <Typography gutterBottom>
-              {item.charAt(0).toUpperCase() + item.slice(1)} Preference: {formData[item]}
-            </Typography>
-            <Slider
-              value={formData[item]}
-              onChange={handleSlider(item)}
-              step={1}
-              marks
-              min={1}
-              max={10}
-              valueLabelDisplay="auto"
-            />
-          </Box>
-        ))}
+        {/* Preferences */}
+        {criteria.map((item) => renderPreference(item))}
 
         <FormControl fullWidth margin="normal">
           <InputLabel>Current Year</InputLabel>

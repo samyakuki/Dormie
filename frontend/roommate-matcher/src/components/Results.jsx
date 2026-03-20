@@ -23,8 +23,10 @@ const Results = () => {
   const currentUser = location.state?.currentUser;
   const matches = location.state?.matches || [];
 
-  // ✅ Optional: Sort by score descending (just in case backend doesn't)
-  const sortedMatches = [...matches].sort((a, b) => b.score - a.score);
+  // ✅ FIX: use matchScore instead of score
+  const sortedMatches = [...matches].sort(
+    (a, b) => (b.matchScore || 0) - (a.matchScore || 0)
+  );
 
   const renderPreference = (label, value) => (
     <Typography variant="body2" key={label}>
@@ -70,6 +72,7 @@ const Results = () => {
       <Typography variant="h6" gutterBottom>
         Top Matches
       </Typography>
+
       {sortedMatches.length === 0 ? (
         <Typography>No matches found.</Typography>
       ) : (
@@ -87,11 +90,21 @@ const Results = () => {
                     Degree: {match.degree}, Year: {match.currentYear}
                   </Typography>
 
+                  {/* ✅ FIXED SCORE DISPLAY */}
                   <Typography
                     variant="body2"
-                    sx={{ mt: 1, color: getScoreColor(match.score) }}
+                    sx={{
+                      mt: 1,
+                      color: getScoreColor(match.matchScore || 0),
+                    }}
                   >
-                    Match Score: <strong>{match.score}%</strong>
+                    Match Score:{" "}
+                    <strong>
+                      {match.matchScore
+                        ? match.matchScore.toFixed(2)
+                        : "0"}
+                      %
+                    </strong>
                   </Typography>
 
                   <Box sx={{ mt: 1 }}>

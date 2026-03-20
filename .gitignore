@@ -1,0 +1,22 @@
+# Node
+node_modules/
+
+# Env files
+.env
+
+# Python
+venv/
+__pycache__/
+*.pyc
+
+# ML files (optional)
+*.pkl
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS
+.DS_Store
+Thumbs.db
